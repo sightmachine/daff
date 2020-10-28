@@ -99,6 +99,7 @@ php:
 
 
 java:
+	@grep "\"version\"" package.json | grep -E -o "[.0-9]+" > version.txt
 	rm -rf java_bin
 	haxe -D no-compilation language/java.hxml
 	cp scripts/JavaTableView.java java_bin/src/coopy
@@ -107,10 +108,11 @@ java:
 	echo "Main-Class: coopy.Coopy" > java_bin/manifest
 	cd java_bin && mkdir obj
 	cd java_bin && javac -sourcepath src -d obj -g:none "@cmd"
-	cd java_bin/obj && jar cvfm ../daff.jar ../manifest .
-	cd java_bin && javac -cp daff.jar Example.java
-	@echo 'Output in java_bin, run "java -jar java_bin/daff.jar" for help'
-	@echo 'Run example with "java -cp java_bin/daff.jar:java_bin Example"'
+	cd java_bin/obj && jar cvfm ../daff-`cat ../../version.txt`.jar ../manifest .
+	cd java_bin && javac -cp daff-`cat ../version.txt`.jar Example.java
+	sed s/VERSION/`cat version.txt`/ daff.pom > java_bin/daff-`cat version.txt`.pom
+	@echo "Output in java_bin, run \"java -jar java_bin/daff-`cat version.txt`.jar\" for help"
+	@echo "Run example with \"java -cp java_bin/daff-`cat version.txt`.jar:java_bin Example\""
 
 cs:
 	haxe language/cs.hxml
